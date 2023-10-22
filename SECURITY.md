@@ -2,20 +2,17 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+currently our system is in development
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+to report a vulnerabillity bug or anything near that
+please go to our discord [https://discord.gg/DhZKQshTjV]
+then in the lounge just talk to one of the members
+and they will inform the devs
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+## exploiting 
+if u exploit our system and gain things 
+or do things that y arent supose to do the hackers of the team
+will look at what u did and decide what will happen to you
