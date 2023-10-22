@@ -77,3 +77,17 @@ body {
     text-align: center;
     margin-top: 12px;
 }
+
+/* Styles for the "fighters-bar" section */
+.fighters-bar {
+    background-color: #1e1a2f; /* Same color as the navigation bar */
+    padding: 10px; /* Add some padding for spacing */
+    text-align: center;
+    color: white; /* Text color */
+}
+
+/* Styles for the "Fighters" label */
+.fighters-bar h1 {
+    font-size: 24px;
+    margin: 0;
+}
