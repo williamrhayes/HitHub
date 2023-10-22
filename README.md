@@ -8,11 +8,13 @@ Hithub is a Mini Martial Artists Web App.
 
 Would you like to fix an issue or add a feature? Here's how:
 
-1. Clone the repository (`git clone https://github.com/williamrhayes/HitHub.git`)
-2. Create your own branch (`git checkout -b feature`)
-3. Commit your changes (`git commit -m 'Added a new feature'`)
-4. Push to your own branch (`git push origin branch_name`)
-5. Open a pull request comparing against the `dev` branch
+1. Fork this repository
+2. Clone the forked repository (`git clone https://github.com/USERNAME/HitHub.git`)
+3. Add an upstream URL (`git remote add upstream https://github.com/williamrhayes/HitHub.git`)
+4. Create your own branch (`git checkout -b feature`)
+5. Commit your changes (`git commit -m 'Added a new feature'`)
+6. Push to your own branch (`git push origin branch_name`)
+7. Open a pull request comparing against the `dev` branch
 
 ## License
 
