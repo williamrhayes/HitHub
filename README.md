@@ -1,4 +1,4 @@
-w# HitHub
+# HitHub
 
 ## What is HitHub?
 
