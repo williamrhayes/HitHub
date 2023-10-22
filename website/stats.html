@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Player Stats - hitbox</title>
+</head>
+<body>
+    <!-- nav -->
+    <div class="header">
+        <a href="index.html" class="title">hitbox</a>
+        <ul class="navigation">
+            <li><a href="fights.html">Fights</a></li>
+            <li><a href="players.html">Players</a></li>
+            <li><a href="bets.html">Bets</a></li>
+        </ul>
+    </div>
+    
+    <div class="stats-container">
+        <h1 class="title">Player Statistics</h1>
+        <div id="player-stats">
+           
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to retrieve the player ID from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerId = urlParams.get('id');
+
+        // test stats
+        const playerStatistics = {
+            1: {
+                name: 'Player 1',
+                score: 100,
+                wins: 20,
+                losses: 5
+            },
+            2: {
+                name: 'Player 2',
+                score: 85,
+                wins: 15,
+                losses: 8
+            }
+            
+        };
+
+        // Function to display player statistics
+        function displayPlayerStats() {
+            const playerStats = playerStatistics[playerId];
+
+            if (playerStats) {
+                const statsContainer = document.getElementById('player-stats');
+
+                // Create HTML elements to display the statistics
+                const playerName = document.createElement('h2');
+                playerName.textContent = playerStats.name;
+
+                const scoreElement = document.createElement('p');
+                scoreElement.textContent = `Score: ${playerStats.score}`;
+
+                const winsElement = document.createElement('p');
+                winsElement.textContent = `Wins: ${playerStats.wins}`;
+
+                const lossesElement = document.createElement('p');
+                lossesElement.textContent = `Losses: ${playerStats.losses}`;
+
+                // Append elements to the stats container
+                statsContainer.appendChild(playerName);
+                statsContainer.appendChild(scoreElement);
+                statsContainer.appendChild(winsElement);
+                statsContainer.appendChild(lossesElement);
+            } else {
+                // Handle the case where the player ID is not found
+                console.error('Player statistics not found.');
+            }
+        }
+
+        // Call the function to display player statistics
+        displayPlayerStats();
+    </script>
+</body>
+</html>

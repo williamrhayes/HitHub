@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="players.css"> <!-- Link to a separate players.css file -->
+    <title>Players | hitbox</title>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="title">hitbox</a>
+        <ul class="navigation">
+            <li><a href="fights.html">Fights</a></li>
+            <li><a href="players.html">fighters</a></li>
+            <li><a href="bets.html">Bets</a></li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <h1>Players</h1>
+       
+        <div class="box-container">
+            <div class="box" onclick="loadPlayerStats(1)"><center><img class="img" src="fighter_2_showcase.png" alt="just a test"></center></div>
+            <div class="box" onclick="loadPlayerStats(2)"></div>
+            <div class="box" onclick="loadPlayerStats(3)"></div>
+            <div class="box" onclick="loadPlayerStats(4)"></div>
+            <div class="box" onclick="loadPlayerStats(5)"></div>
+            <div class="box" onclick="loadPlayerStats(6)"></div>
+        </div>
+        
+        <div class="box-container">
+            <div class="box" onclick="loadPlayerStats(7)"></div>
+            <div class="box" onclick="loadPlayerStats(8)"></div>
+            <div class="box" onclick="loadPlayerStats(9)"></div>
+            <div class="box" onclick="loadPlayerStats(10)"></div>
+            <div class="box" onclick="loadPlayerStats(11)"></div>
+            <div class="box" onclick="loadPlayerStats(12)"></div>
+        </div>
+        
+        <div class="box-container">
+            <div class="box" onclick="loadPlayerStats(13)"></div>
+            <div class="box" onclick="loadPlayerStats(14)"></div>
+            <div class="box" onclick="loadPlayerStats(15)"></div>
+            <div class="box" onclick="loadPlayerStats(16)"></div>
+            <div class="box" onclick="loadPlayerStats(17)"></div>
+        </div>
+    </div>
+</body>
+<script>
+    function loadPlayerStats(playerId) {
+        // Redirect to "stats.html" and pass the playerId as a query parameter
+        window.location.href = `stats.html?id=${playerId}`;
+    }
+    </script>
+    
+</html>

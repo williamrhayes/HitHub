@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #2b253d; /* Dark background color for the entire website */
+    color: white; /* Text color */
+}
+
+.header {
+    width: 10%;
+    height: 100vh; /* 100% of the viewport height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed; /* Fixed positioning to keep it on the left */
+    top: 0;
+    left: 0;
+    background-color: #1e1a2f; /* Even darker background color for the header */
+}
+
+.title {
+    font-size: 24px; /* Adjust the font size as needed */
+    margin-top: 20px; /* Add some top margin to separate it from the top */
+}
+
+.navigation {
+    list-style: none;
+    margin-top: 3rem; /* Position it 3rem below the title */
+    padding: 0;
+    text-align: center;
+}
+
+.navigation li {
+    margin-bottom: 1rem;
+}
+
+.navigation a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 10%; /* Ensure content doesn't overlap with the header */
+}
+
+/* Styling for the box containers */
+.box-container {
+    display: flex;
+    margin: 1rem 0;
+}
+
+/* Styling for individual boxes */
+.box {
+    width: 50px; /* Adjust the width and height as needed */
+    height: 50px;
+    border: 1px solid black; /* Black outline */
+    background-color: #2b253d; /* Same as the normal background color */
+    margin: 0 5px; /* Adjust the margin to create space between boxes */
+}
