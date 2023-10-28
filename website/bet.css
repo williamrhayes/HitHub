@@ -1,0 +1,18 @@
+/* Styles specific to the "bet.html" page */
+body {
+    background-color: #2b253d;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    background-color: #1e1a2f;
+    text-align: center;
+}
+
+.title {
+    font-size: 24px;
+    margin-top: 20px;
+    color: white;
+    text-decoration: none;
+}
