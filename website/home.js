@@ -5,5 +5,5 @@ const history4 = document.getElementById("his4")
 const history5 = document.getElementById("his5")
 
 if (history1 === '') {
-    history1.textContent = 'ⓘ no history found'
+    history1.textContent = "ⓘ no history found"
 }
