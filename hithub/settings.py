@@ -28,7 +28,7 @@ SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["hithub.club", "www.hithub.club"]
+ALLOWED_HOSTS = ["hithub.club", "www.hithub.club", "127.0.0.1", "localhost"]
 
 
 # Application definition
