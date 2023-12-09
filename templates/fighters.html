@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+{% block title %}HitHub | Fighters{% endblock title %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'fighters/css/style.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'fighters/js/script.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <p>Fighter Page</p>
+{% endblock content %}
