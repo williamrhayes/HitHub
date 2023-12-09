@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}HitHub{% endblock title %}</title>
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock extra_css%}
+</head>
+<body>
+
+    <!-- Include the header -->
+    <div class="header">
+        <a href="index.html" class="title">HitHub</a>
+        <ul class="navigation">
+            <li><a href="fights.html">Fights</a></li>
+            <li><a href="players.html">fighters</a></li>
+            <li><a href="bet.html">Bets</a></li>
+        </ul>
+    </div>
+
+    <!-- INFO FOR OTHER TEMPLATES WILL GO HERE -->
+    {% block content %}
+    {% endblock content %}
+
+    <!-- Load in JS at the end -->
+    {% block extra_js %}{% endblock extra_js%}
+</body>
+<footer>
+    <p class="copyright">&copy; {% now "Y" %} HitHub</p>
+</footer>
+</html>
