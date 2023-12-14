@@ -38,6 +38,8 @@ class Fighter(models.Model):
     is_intoxicated = models.BooleanField(default=False, null=False)
     is_incarcerated = models.BooleanField(default=False, null=False)
     is_enlightened = models.BooleanField(default=False, null=False)
+    is_banished = models.BooleanField(default=False, null=False)
+    is_exiled = models.BooleanField(default=False, null=False)
     is_retired = models.BooleanField(default=False, null=False)
     is_deceased = models.BooleanField(default=False, null=False)
 
@@ -52,6 +54,7 @@ class Fighter(models.Model):
     weight = models.IntegerField(null=False)
     reach = models.IntegerField(null=False)
     stance = models.CharField(default='OR', choices={'OR': 'Orthodox', 'SW': 'Switch', 'SP': 'Southpaw', 'OS':'Open Stance', 'SW': 'Sideways', 'KY': 'Kentucky', 'IL': 'Illegal'}, max_length=2)
+    
     # It makes the most sense to just store this information as
     # an accessible JSON object. That way, whenever we want to 
     # retrieve information about a fighter we can retrieve it once
