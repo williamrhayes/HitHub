@@ -30,6 +30,9 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ["hithub.club", "www.hithub.club", "127.0.0.1", "localhost"]
 
+# Append slash in URLs
+APPEND_SLASH = False
+
 # Application definition
 
 INSTALLED_APPS = [

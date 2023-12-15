@@ -34,3 +34,8 @@ class FightDetail(models.Model):
     # Fight Details
     class Meta:
         ordering = ['step_number']
+
+class UpcomingFights(models.Model):
+    start_time = models.DateTimeField(auto_now_add=True)
+    fighter_a_id = models.ForeignKey(Fighter, on_delete=models.CASCADE, limit_choices_to={"is_retired": False, "is_deceased": False, "is_enlightened": False, "is_exiled": False, "is_banished": False,}, null=False, related_name='upcoming_fights_as_fighter_a')
+    fighter_b_id = models.ForeignKey(Fighter, on_delete=models.CASCADE, limit_choices_to={"is_retired": False, "is_deceased": False, "is_enlightened": False, "is_exiled": False, "is_banished": False,}, null=False, related_name='upcoming_fights_as_fighter_b')
