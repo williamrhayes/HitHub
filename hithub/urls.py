@@ -19,6 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('', include("fights.urls")), # Establish home/fighter page
+    #path('fights', include("fights.urls")),
     path('admin/', admin.site.urls),
     path('about/', include("about.urls")),
     path('bets/', include("bets.urls")),
