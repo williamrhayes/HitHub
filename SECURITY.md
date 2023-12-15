@@ -1,8 +1,8 @@
 # Security Policy
 
 ## Supported Versions
-
-We currently do not have any realesed versions yet. However, if you find a vulnerability please check below!
+As a Community we support all versions
+so nomater what version it will always be supported
 
 <!-- #Use this section to tell people about which versions of your project are -->
 <!-- currently being supported with security updates. -->
@@ -16,4 +16,5 @@ We currently do not have any realesed versions yet. However, if you find a vulne
 
 ## Reporting a Vulnerability
 
-You can report a vulnerability via Issues!
+You can report a vulnerability via [Issues](https://github.com/williamrhayes/HitHub/issues)
+please specify every single detail please
