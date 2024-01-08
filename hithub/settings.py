@@ -49,8 +49,10 @@ INSTALLED_APPS = [
     'accounts',
     'bets',
     'fighters',
-    'fights'
+    'fights',
 ]
+
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

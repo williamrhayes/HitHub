@@ -1,0 +1,51 @@
+/* Apply styles to the entire page */
+body {
+    background-color: #2b253d;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* Styles for the header section */
+.header {
+    background-color: #1e1a2f;
+    text-align: center;
+}
+
+.title {
+    font-size: 24px;
+    margin-top: 20px;
+    color: white;
+    text-decoration: none;
+}
+
+
+.stats-container {
+    text-align: center;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #1e1a2f;
+    border-radius: 5px;
+}
+
+title {
+    color: white;
+    font-size: 24px;
+    margin-left: 6rem;
+}
+
+#player-stats {
+    text-align: left;
+    padding: 10px;
+    background-color: #2b253d;
+    border-radius: 5px;
+}
+
+h2 {
+    font-size: 20px;
+    color: white;
+}
+
+p {
+    font-size: 16px;
+    color: white;
+}
