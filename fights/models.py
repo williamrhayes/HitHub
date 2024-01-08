@@ -17,6 +17,9 @@ class Fight(models.Model):
     end_time = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField(blank=True, null=True)
 
+    def __str__(self) -> str:
+        return f"{self.fighter_a_id} vs {self.fighter_b_id}"
+
 # Details of the fight (Actual moves used in what sequence)
 class FightDetail(models.Model):
     fight_id = models.ForeignKey(Fight, on_delete=models.CASCADE, null=False, related_name='fightdetails')
@@ -35,7 +38,13 @@ class FightDetail(models.Model):
     class Meta:
         ordering = ['step_number']
 
-class UpcomingFights(models.Model):
+    def __str__(self) -> str:
+        return f"{self.step_number}: {self.aggressor} used {self.action_attempted}"
+
+class UpcomingFight(models.Model):
     start_time = models.DateTimeField(auto_now_add=True)
     fighter_a_id = models.ForeignKey(Fighter, on_delete=models.CASCADE, limit_choices_to={"is_retired": False, "is_deceased": False, "is_enlightened": False, "is_exiled": False, "is_banished": False,}, null=False, related_name='upcoming_fights_as_fighter_a')
     fighter_b_id = models.ForeignKey(Fighter, on_delete=models.CASCADE, limit_choices_to={"is_retired": False, "is_deceased": False, "is_enlightened": False, "is_exiled": False, "is_banished": False,}, null=False, related_name='upcoming_fights_as_fighter_b')
+
+    def __str__(self) -> str:
+        return f"{self.fighter_a_id} vs {self.fighter_b_id}"
