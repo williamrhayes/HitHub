@@ -1,24 +1,58 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from accounts.models import CustomUser
+
+# Establish different Fighter names we can pick from
+class Name(models.Model):
+    TYPE_CHOICES = (
+        ('N', 'Name'),
+        ('P', 'Prefix'),
+        ('S', 'Suffix'),
+    )
+    type = models.CharField(choices=TYPE_CHOICES, max_length=1)
+    text = models.CharField(max_length=64)
+    rarity = models.CharField(default="C", max_length=1, choices={"C": "Common", "U": "Uncommon", "R": "Rare", "E": "Exotic", "L": "Legendary"}, null=False)
+
+    def __str__(self):
+        return f"{self.text}"
 
 # Create your models here.
 class Fighter(models.Model):
-    # Establish Biographical Features
-    date_of_birth = models.DateTimeField(auto_now_add=True)
+    # Establish whether the fighter is currently sponsored by another user
+    sponsor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    # Determine the rarity of this fighter
+    rarity = models.CharField(default="C", max_length=1, choices={"C": "Common", "U": "Uncommon", "R": "Rare", "E": "Exotic", "L": "Legendary"}, null=False)
+    # Link to the UFC fighter who sets the priors of our current fighter
+    spirit_fighter = models.ForeignKey('SpiritFighter', on_delete=models.SET_NULL, null=True, related_name='fighters_spirit_fighter')
+    # Give the fighter a name based on their rarity
     prefix = models.CharField(max_length=256, null=True, blank=True)
     name = models.CharField(max_length=256, null=False)
     suffix = models.CharField(max_length=256, null=True, blank=True)
+    # Establish Biographical Features based on the Spirit Fighter
+    date_of_birth = models.DateTimeField(auto_now_add=True)
+    height = models.IntegerField(null=False)
+    weight = models.IntegerField(null=False)
+    reach = models.IntegerField(null=False)
+    STANCE_CHOICES = (
+        ('OR', 'Orthodox'),
+        ('SW', 'Switch'),
+        ('SP', 'Southpaw'),
+        ('OS', 'Open Stance'),
+        ('KY', 'Kentucky'),
+        ('IR', 'Irish'),
+        ('MA', 'Mantis'),
+        ('TI', 'Tiger'),
+        ('WB', 'Water Buffalo'),
+        ('WO', 'Wooshi'),
+        ('IL', 'Illegal'),
+    )
+    stance = models.CharField(default='OR', choices=STANCE_CHOICES, max_length=2)
     bio = models.CharField(max_length=2048, null=True, blank=True)
 
     # Establish whether the fighter is a main event fighter
     # (One of the fighters in the main tournament)
     is_main_event_fighter = models.BooleanField(null=False, default=False)
-
-    # Establish whether the fighter is currently sponsored by another user
-    sponsor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
-                                null=True, blank=True
-                            )
 
     # Establish Cosmetics that Fighter has Equipped
     cosmetic_base = models.ForeignKey('Cosmetic', blank=True, on_delete=models.SET_NULL, limit_choices_to={"type": "BASE"}, null=True, related_name='fighters_base')
@@ -48,6 +82,7 @@ class Fighter(models.Model):
     is_injured = models.BooleanField(default=False, null=False)
     is_intoxicated = models.BooleanField(default=False, null=False)
     is_incarcerated = models.BooleanField(default=False, null=False)
+    is_emaciated = models.BooleanField(default=False, null=False)
     is_enlightened = models.BooleanField(default=False, null=False)
     is_banished = models.BooleanField(default=False, null=False)
     is_exiled = models.BooleanField(default=False, null=False)
@@ -59,18 +94,6 @@ class Fighter(models.Model):
     has_monastic_training = models.BooleanField(default=False, null=True)
     is_roastmaster = models.BooleanField(default=False, null=True)
     is_rehabilitated = models.BooleanField(default=False, null=True)
-
-    # Establish Fighter Stats
-    height = models.IntegerField(null=False)
-    weight = models.IntegerField(null=False)
-    reach = models.IntegerField(null=False)
-    stance = models.CharField(default='OR', choices={'OR': 'Orthodox', 'SW': 'Switch', 'SP': 'Southpaw', 'OS':'Open Stance', 'SW': 'Sideways', 'KY': 'Kentucky', 'IL': 'Illegal'}, max_length=2)
-    
-    # It makes the most sense to just store this information as
-    # a link to the spirit accessible JSON object. That way, whenever we want to 
-    # retrieve information about a fighter we can retrieve it once
-    # and don't have to keep calling the database
-    spirit_fighter = models.ForeignKey('SpiritFighter', on_delete=models.SET_NULL, null=True, related_name='fighters_spirit_fighter')
 
     def __str__(self):
         prefix, suffix = "", ""
