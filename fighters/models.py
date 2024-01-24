@@ -95,6 +95,9 @@ class Fighter(models.Model):
     is_roastmaster = models.BooleanField(default=False, null=True)
     is_rehabilitated = models.BooleanField(default=False, null=True)
 
+    # Add in the fighter stats from the fighters' encounters
+    stats = models.JSONField(default={}, null=False)
+
     def __str__(self):
         prefix, suffix = "", ""
         if self.prefix:
