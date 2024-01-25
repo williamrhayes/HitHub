@@ -78,12 +78,12 @@ class Fighter(models.Model):
     is_derranged = models.BooleanField(null=False)
     is_offensive = models.BooleanField(null=False)
     is_radioactive = models.BooleanField(null=False)
+    is_enlightened = models.BooleanField(default=False, null=False)
     is_infected = models.BooleanField(default=False, null=False)
     is_injured = models.BooleanField(default=False, null=False)
     is_intoxicated = models.BooleanField(default=False, null=False)
     is_incarcerated = models.BooleanField(default=False, null=False)
     is_emaciated = models.BooleanField(default=False, null=False)
-    is_enlightened = models.BooleanField(default=False, null=False)
     is_banished = models.BooleanField(default=False, null=False)
     is_exiled = models.BooleanField(default=False, null=False)
     is_retired = models.BooleanField(default=False, null=False)
@@ -96,7 +96,8 @@ class Fighter(models.Model):
     is_rehabilitated = models.BooleanField(default=False, null=True)
 
     # Add in the fighter stats from the fighters' encounters
-    stats = models.JSONField(default={}, null=False)
+    priors = models.JSONField(default=dict, null=False)
+    #stats = models.JSONField(default=dict, null=False)
 
     def __str__(self):
         prefix, suffix = "", ""
@@ -166,6 +167,7 @@ class SpiritFighter(models.Model):
     ufc_id = models.CharField(max_length=32, null=True, blank=False)
     height = models.IntegerField(null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
+    reach = models.IntegerField(null=True, blank=True)
     stance = models.CharField(max_length=32, null=True, blank=True)
     first_name = models.CharField(max_length=32, null=True, blank=True)
     last_name = models.CharField(max_length=32, null=True, blank=True)
