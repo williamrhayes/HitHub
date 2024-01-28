@@ -12,4 +12,15 @@
 
 {% block content %}
   <p>Fighter Page</p>
+  <h2>Cosmetics Related to Fighters</h2>
+  <ul>
+    {% for cosmetic in cosmetics %}
+      <li>
+        <p>Name: {{ cosmetic.name }}</p>
+        <p>Brand: {{ cosmetic.brand }}</p>
+        <p>Description: {{ cosmetic.description }}</p>
+        <img src="{{ cosmetic.signed_url }}" alt="{{ cosmetic.name }} Image">
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock content %}
