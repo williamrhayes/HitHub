@@ -24,10 +24,14 @@ def create_fighter(user_instance: CustomUser=None, rarity=None, **kwargs):
     fighter_data["name"] = name
     fighter_data["suffix"] = suffix
     # Determine biographical features based on the spirit fighter
-    fighter_data["height"] = spirit_fighter.height
     fighter_data["weight"] = spirit_fighter.weight
     # Use stats from the ratio of reach to height to randomly assign a reach
-    fighter_data["reach"] = spirit_fighter.height * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
+    if spirit_fighter.height is None:
+        fighter_data["height"] = 68
+        fighter_data["reach"] = 68 * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
+    else:
+        fighter_data["height"] = spirit_fighter.height
+        fighter_data["reach"] = spirit_fighter.height * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
     fighter_data["stance"] = spirit_fighter.stance
     # Determine the fighter's Cosmetics
     selected_cosmetics = determine_cosmetics(rarity_char=rarity_char)
@@ -99,33 +103,38 @@ def determine_fighter_name(rarity_char):
     return prefix, name, suffix
 
 # Determine the "lifestyle" features of the fighter
-def determine_cosmetics(rarity_char, no_item_chance=0.5):
+def determine_cosmetics(rarity_char, item_chance=0.5):
     # Find all cosmetic options that are available
     sample_cosmetic = Cosmetic()
     cosmetic_types = list(sample_cosmetic.cosmetic_choices.keys())
     cosmetics = {}
     # Select one cosmetic of each type
     for cosmetic_type in cosmetic_types:
+        # Only required cosmetics will be a base character and some form of shorts
+        is_required = cosmetic_type == "BASE" or cosmetic_type == "SHORTS"
         cosmetic_reference = f"cosmetic_{cosmetic_type.lower()}"
-        cosmetics[cosmetic_reference] = select_cosmetic(cosmetic_type, rarity_char, no_item_chance)
+        cosmetics[cosmetic_reference] = select_cosmetic(cosmetic_type, rarity_char, item_chance, is_required)
     return cosmetics
 
 # Helper function to determine_cosmetics, selects and returns one
 # cosmetic after rolling down the available rarities
-def select_cosmetic(cosmetic_type, rarity_char, no_item_chance):
+def select_cosmetic(cosmetic_type, rarity_char, item_chance, is_required=False):
     rarity_char_to_num = {'C': 1, 'U': 2, 'R': 3, 'E': 4, 'L': 5}
     rarity_num_to_char = {1: 'C', 2: 'U', 3: 'R', 4: 'E', 5: 'L'}
     current_rarity = rarity_char_to_num[rarity_char]
-    selected_cosmetic = None
     # Filter through items by rarity, decreasing rarity as the user looks
     # through cosmetic items and returning the one that is eventually selected
+    selected_cosmetic = None
     while selected_cosmetic is None and current_rarity > 0:
         #if np.random.random() > no_item_chance:
-        cosmetic_options = Cosmetic.objects.filter(rarity=rarity_num_to_char[current_rarity], type="cosmetic_type")
-        if len(cosmetic_options) > 0:
+        cosmetic_options = Cosmetic.objects.filter(rarity=rarity_num_to_char[current_rarity], type=cosmetic_type)
+        if (len(cosmetic_options) > 0) and (np.random.random() <= item_chance):
             selected_cosmetic = random.choice(list(cosmetic_options))
             return selected_cosmetic
         current_rarity -= 1
+    # If the object is required and the fighter was unable to get any of them, 
+    # return a common version of the required item
+    if is_required: return random.choice(list(cosmetic_options))
 
 # Determine the "lifestyle" features of the fighter
 def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.1, athiest_roll=0.05, enlightenment_roll=0.05, derranged_roll=0.05, radioactive_roll=0.03, abstinence_roll=0.01):

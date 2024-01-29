@@ -12,15 +12,15 @@
 
 {% block content %}
   <p>Fighter Page</p>
-  <h2>Cosmetics Related to Fighters</h2>
-  <ul>
-    {% for cosmetic in cosmetics %}
-      <li>
-        <p>Name: {{ cosmetic.name }}</p>
-        <p>Brand: {{ cosmetic.brand }}</p>
-        <p>Description: {{ cosmetic.description }}</p>
-        <img src="{{ cosmetic.signed_url }}" alt="{{ cosmetic.name }} Image">
-      </li>
-    {% endfor %}
-  </ul>
+  <h2>Fighters</h2>
+  {% for fighter in prepped_fighters %}
+    <h3>{{ fighter.name }}</h3>
+    <div class="fighter-container">
+      <div class="fighter-square">
+        {% for cosmetic in fighter.signed_cosmetics %}
+          <img src="{{ cosmetic.signed_url }}" alt="{{ cosmetic.cosmetic.name }}" class="cosmetic-image">
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
 {% endblock content %}
