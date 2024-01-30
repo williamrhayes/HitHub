@@ -3,6 +3,8 @@ from fighters.models import Cosmetic
 from .models import *
 import random
 import numpy as np
+from PIL import Image
+from collections import defaultdict
 
 ### Function that generates a mini martial artist Fighter
 def create_fighter(user_instance: CustomUser=None, rarity=None, **kwargs):
@@ -201,3 +203,20 @@ def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.
     }
 
     return lifestyle_features
+
+# This function takes the image uploaded as input, 
+# scans the image's pixels for each of its different colors it used,
+# then uses the frequency of those pixels to determine the primary, secondary, and tertiary colors used.  
+def determine_cosmetic_colors(img):
+    img = Image.open(img).convert("RGBA")
+    color_frequency = identify_color_frequency(img)
+    return color_frequency
+
+
+# Identify the pixel color counts within the asset
+def identify_color_frequency(img):
+    pixel_grid = img.getdata()
+    all_colors = [f"{r}_{g}_{b}" for r,g,b,a in pixel_grid if a==255]
+    color_frequency = defaultdict(lambda: 0)
+    for color in all_colors: color_frequency[color] += 1
+    return color_frequency
