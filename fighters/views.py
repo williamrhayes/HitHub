@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from fighters.models import Cosmetic, Fighter
 from hithub.utils import generate_signed_url
+from fighters.utils import recolor_img
 
 class FighterPageView(TemplateView):
     template_name = "fighters.html"

@@ -144,22 +144,23 @@ class Cosmetic(models.Model):
     # follow the format of R_G_B_A
     color_data_default = {
         "auto_find_colors": True, 
-        "primary_color": [0, 0, 0, 0],
-        "secondary_color": [0, 0, 0, 0],
-        "secondary_color_rel": [0, 0, 0, 0],
-        "tertiary_colors": {
-            #"color_1": [0, 0, 0, 0], # Default to None, but colors can be added in this form
-            #"color_1_rel": [0, 0, 0, 0],
+        "color_correct": True, 
+        # Colors you're intending to use for the asset
+        "true_colors": {
+            #"color_1": [0, 0, 0, 1],
         },
+        # Colors that remain the same regardless of whether the asset is color shifted
         "constant_colors": {
             #"white": [255, 255, 255, 1], # Default to None, but colors can be added in this form
             #"black": [0, 0, 0, 1],
         },
+        # Colors that can experience an independent color shift
         "independent_color_shift": {
-            #"detail_1": [0, 0, 0, 0] # Default to None, but colors can be added in this form
+            #"detail_1": [0, 0, 0, 1] # Default to None, but colors can be added in this form
         },
+        # Whether the color has been shifted (and if so to what new base color)
         "is_color_shifted": False,
-        "shifted_primary_color": [0, 0, 0, 0],
+        "new_base_color": [0, 0, 0, 1],
     }
     color_data = models.JSONField(default=color_data_default, null=False)
 
