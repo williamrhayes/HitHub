@@ -156,7 +156,6 @@ def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.
     is_radioactive = False
     is_athiest = False
     is_abstinent = False
-    is_badboy = False
 
     # Each rarity rank gives the fighter a roll to be either 
     # enlightened or athiest
@@ -208,8 +207,8 @@ def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.
 # This function takes the image uploaded as input, 
 # then scans the image's pixels for each of its different colors it used
 # and the amount of times they appear in the image
-def identify_color_frequency(img: ImageField):
-    img = Image.open(img).convert("RGBA")
+def identify_color_frequency(img: Image):
+    #img = Image.open(img).convert("RGBA")
     pixel_grid = img.getdata()
     all_colors = [f"{r}_{g}_{b}" for r,g,b,a in pixel_grid if a==255]
     color_frequency = defaultdict(lambda: 0)
@@ -227,7 +226,7 @@ def extract_rgb(rbg_string: str):
 # This method takes the "true" colors of an object
 # (i.e the colors that we actually want to use for pixels)
 # and uses them to replace other colors
-def correct_pixel_color(img: ImageField, true_colors: dict):
+def correct_pixel_color(img: Image, true_colors: dict):
     color_frequency = identify_color_frequency(img)
     true_colors = [f"{r}_{g}_{b}" for r, g, b, a in true_colors.values()]
     # Identify which pixel colors are not supposed to be in the image,
@@ -248,7 +247,7 @@ def correct_pixel_color(img: ImageField, true_colors: dict):
 
     # Adjust each pixel in the image to map to the new
     # base color
-    img = Image.open(img).convert("RGBA")
+    #img = Image.open(img).convert("RGBA")
     newData = []
     pixel_grid = img.getdata()
     for pixel in pixel_grid:
@@ -267,7 +266,7 @@ def correct_pixel_color(img: ImageField, true_colors: dict):
     return new_img
     
 # Returns the colors relative to the base color
-def identify_relative_colors(img: ImageField, true_colors: dict):
+def identify_relative_colors(img: Image, true_colors: dict):
     # Extract our base color from our asset
     color_frequency = identify_color_frequency(img)
     base_color_str = identify_base_color(color_frequency)
@@ -279,16 +278,16 @@ def identify_relative_colors(img: ImageField, true_colors: dict):
     return relative_colors
 
 # Shift the color of the asset given its pixel ratios
-def recolor_img(img: ImageField, new_base_color: list, constant_colors: dict, independent_colors: dict):
+def recolor_img(img: Image, new_base_color: list, constant_colors: dict={}, independent_colors: dict={}):
     # Identify the existing base color
     color_frequency = identify_color_frequency(img)
-    base_color_str = identify_base_color(color_frequency)
-    base_colors = extract_rgb(base_color_str)
-    r_base, g_base, b_base, *_ = base_colors
-    base_color_shift = np.array([r_base, g_base, b_base]) - base_colors
+    old_base_color_str = identify_base_color(color_frequency)
+    old_base_colors = extract_rgb(old_base_color_str)
+    r_base, g_base, b_base, *_ = new_base_color
+    base_color_shift = np.array([r_base, g_base, b_base]) - old_base_colors
     # Adjust each pixel in the image to map to the new
     # base color
-    img = Image.open(img).convert("RGBA")
+    #img = Image.open(img).convert("RGBA")
     newData = []
     pixel_grid = img.getdata()
     for pixel in pixel_grid:

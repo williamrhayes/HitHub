@@ -155,7 +155,7 @@ class Cosmetic(models.Model):
             #"black": [0, 0, 0, 1],
         },
         # Colors that can experience an independent color shift
-        "independent_color_shift": {
+        "independent_colors": {
             #"detail_1": [0, 0, 0, 1] # Default to None, but colors can be added in this form
         },
         # Whether the color has been shifted (and if so to what new base color)
