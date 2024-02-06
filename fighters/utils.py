@@ -3,6 +3,13 @@ from fighters.models import Cosmetic
 from .models import *
 import random
 import numpy as np
+from PIL import Image
+from collections import defaultdict
+import requests
+from hithub.utils import generate_signed_url
+from django.core.files.temp import NamedTemporaryFile
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 ### Function that generates a mini martial artist Fighter
 def create_fighter(user_instance: CustomUser=None, rarity=None, **kwargs):
@@ -24,10 +31,14 @@ def create_fighter(user_instance: CustomUser=None, rarity=None, **kwargs):
     fighter_data["name"] = name
     fighter_data["suffix"] = suffix
     # Determine biographical features based on the spirit fighter
-    fighter_data["height"] = spirit_fighter.height
     fighter_data["weight"] = spirit_fighter.weight
     # Use stats from the ratio of reach to height to randomly assign a reach
-    fighter_data["reach"] = spirit_fighter.height * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
+    if spirit_fighter.height is None:
+        fighter_data["height"] = 68
+        fighter_data["reach"] = 68 * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
+    else:
+        fighter_data["height"] = spirit_fighter.height
+        fighter_data["reach"] = spirit_fighter.height * np.random.normal(loc=1.0241625667652927, scale=0.0280589219520499)
     fighter_data["stance"] = spirit_fighter.stance
     # Determine the fighter's Cosmetics
     selected_cosmetics = determine_cosmetics(rarity_char=rarity_char)
@@ -99,33 +110,38 @@ def determine_fighter_name(rarity_char):
     return prefix, name, suffix
 
 # Determine the "lifestyle" features of the fighter
-def determine_cosmetics(rarity_char, no_item_chance=0.5):
+def determine_cosmetics(rarity_char, item_chance=0.5):
     # Find all cosmetic options that are available
     sample_cosmetic = Cosmetic()
     cosmetic_types = list(sample_cosmetic.cosmetic_choices.keys())
     cosmetics = {}
     # Select one cosmetic of each type
     for cosmetic_type in cosmetic_types:
+        # Only required cosmetics will be a base character and some form of shorts
+        is_required = cosmetic_type == "BASE" or cosmetic_type == "SHORTS"
         cosmetic_reference = f"cosmetic_{cosmetic_type.lower()}"
-        cosmetics[cosmetic_reference] = select_cosmetic(cosmetic_type, rarity_char, no_item_chance)
+        cosmetics[cosmetic_reference] = select_cosmetic(cosmetic_type, rarity_char, item_chance, is_required)
     return cosmetics
 
 # Helper function to determine_cosmetics, selects and returns one
 # cosmetic after rolling down the available rarities
-def select_cosmetic(cosmetic_type, rarity_char, no_item_chance):
+def select_cosmetic(cosmetic_type, rarity_char, item_chance, is_required=False):
     rarity_char_to_num = {'C': 1, 'U': 2, 'R': 3, 'E': 4, 'L': 5}
     rarity_num_to_char = {1: 'C', 2: 'U', 3: 'R', 4: 'E', 5: 'L'}
     current_rarity = rarity_char_to_num[rarity_char]
-    selected_cosmetic = None
     # Filter through items by rarity, decreasing rarity as the user looks
     # through cosmetic items and returning the one that is eventually selected
+    selected_cosmetic = None
     while selected_cosmetic is None and current_rarity > 0:
         #if np.random.random() > no_item_chance:
-        cosmetic_options = Cosmetic.objects.filter(rarity=rarity_num_to_char[current_rarity], type="cosmetic_type")
-        if len(cosmetic_options) > 0:
+        cosmetic_options = Cosmetic.objects.filter(rarity=rarity_num_to_char[current_rarity], type=cosmetic_type)
+        if (len(cosmetic_options) > 0) and (np.random.random() <= item_chance):
             selected_cosmetic = random.choice(list(cosmetic_options))
             return selected_cosmetic
         current_rarity -= 1
+    # If the object is required and the fighter was unable to get any of them, 
+    # return a common version of the required item
+    if is_required: return random.choice(list(cosmetic_options))
 
 # Determine the "lifestyle" features of the fighter
 def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.1, athiest_roll=0.05, enlightenment_roll=0.05, derranged_roll=0.05, radioactive_roll=0.03, abstinence_roll=0.01):
@@ -144,7 +160,6 @@ def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.
     is_radioactive = False
     is_athiest = False
     is_abstinent = False
-    is_badboy = False
 
     # Each rarity rank gives the fighter a roll to be either 
     # enlightened or athiest
@@ -192,3 +207,159 @@ def determine_lifestyle_features(rarity_char, offensive_roll=0.2, badboy_roll=0.
     }
 
     return lifestyle_features
+
+# This function takes the image uploaded as input, 
+# then scans the image's pixels for each of its different colors it used
+# and the amount of times they appear in the image
+def identify_color_frequency(img: Image):
+    #img = Image.open(img).convert("RGBA")
+    pixel_grid = img.getdata()
+    all_colors = [f"{r}_{g}_{b}" for r,g,b,a in pixel_grid if a==255]
+    color_frequency = defaultdict(lambda: 0)
+    for color in all_colors: color_frequency[color] += 1
+    return color_frequency
+
+# Returns the most common color in an image
+def identify_base_color(color_frequency: defaultdict):
+    return max(color_frequency, key=color_frequency.get)
+
+# Helper function to correct_pixel_color that extracts the RGB values from the RGB encoding
+def extract_rgb(rbg_string: str):
+    return np.array([int(c) for c in rbg_string.split("_")])
+
+# This method takes the "true" colors of an object
+# (i.e the colors that we actually want to use for pixels)
+# and uses them to replace other colors
+def correct_pixel_color(img: Image, true_colors: dict):
+    color_frequency = identify_color_frequency(img)
+    true_colors = [f"{r}_{g}_{b}" for r, g, b, a in true_colors.values()]
+    # Identify which pixel colors are not supposed to be in the image,
+    # if there are no non-true colors then the image has already been 
+    # color-corrected
+    non_true_colors = set(color_frequency) - set(true_colors)
+    #if not non_true_colors: return None
+    true_color_array = np.array([extract_rgb(c) for c in true_colors])
+    # For each of these colors, identify the true color with the closest
+    # match to the non-true color to map each non-true color with
+    # its closest matching true color.
+    non_true_to_true = {}
+    for non_true_color in non_true_colors:
+        non_true_rgb = extract_rgb(non_true_color)
+        # Sum of squared difference between non-true and true color
+        lsd = np.sum((true_color_array - non_true_rgb)**2, axis=1)
+        non_true_to_true[non_true_color] = true_color_array[np.argmin(lsd)]
+
+    # Adjust each pixel in the image to map to the new
+    # base color
+    #img = Image.open(img).convert("RGBA")
+    newData = []
+    pixel_grid = img.getdata()
+    for pixel in pixel_grid:
+        r,g,b,a = pixel
+        color_key = f"{r}_{g}_{b}"
+        # If the color is not desired in the image (a non-true color),
+        # then replace the value of that pixel
+        if color_key in non_true_colors:
+            new_r, new_g, new_b = non_true_to_true[color_key]
+            newData.append((new_r, new_g, new_b, a))
+        else:
+            newData.append(pixel)
+            
+    new_img = img.copy()
+    new_img.putdata(newData)
+    return new_img
+    
+# Returns the colors relative to the base color
+def identify_relative_colors(img: Image, true_colors: dict):
+    # Extract our base color from our asset
+    color_frequency = identify_color_frequency(img)
+    base_color_str = identify_base_color(color_frequency)
+    base_colors = extract_rgb(base_color_str)
+    # Extract our true colors from our asset
+    true_colors = np.array([np.array(r, g, b) for r, g, b, a in true_colors.values()])
+    # Find color difference between base color and all other colors
+    relative_colors = np.array(true_colors - base_colors) % 256
+    return relative_colors
+
+# Shift the color of the asset given its pixel ratios
+def recolor_img(img: Image, new_base_color: list, constant_colors: dict={}, independent_colors: dict={}):
+    # Identify the existing base color
+    color_frequency = identify_color_frequency(img)
+    old_base_color_str = identify_base_color(color_frequency)
+    old_base_colors = extract_rgb(old_base_color_str)
+    r_base, g_base, b_base, *_ = new_base_color
+    base_color_shift = np.array([r_base, g_base, b_base]) - old_base_colors
+    # Adjust each pixel in the image to map to the new
+    # base color
+    #img = Image.open(img).convert("RGBA")
+    newData = []
+    pixel_grid = img.getdata()
+    for pixel in pixel_grid:
+        r_current,g_current,b_current,a = pixel
+        r_base, g_base, b_base = base_color_shift
+        new_r, new_g, new_b = (
+            r_current + r_base,
+            g_current + g_base,
+            b_current + b_base
+        )
+        # Ignore it if the pixel is a constant color
+        if constant_colors:
+            constant_color_arr = np.array(list(constant_colors.values()))
+            r_const, g_const, b_const = constant_color_arr[:, 0], constant_color_arr[:, 1], constant_color_arr[:, 2]
+            if (r_current in r_const) and (g_current in g_const) and (b_current in b_const):
+                newData.append((r_current,g_current,b_current,a))
+            else:
+                # Otherwise replace it with the new pixel color
+                newData.append((new_r, new_g, new_b, a))
+        else:
+            newData.append((new_r, new_g, new_b, a))
+
+    recolored_img = img.copy()
+    recolored_img.putdata(newData)
+
+    return recolored_img
+
+def alter_cosmetic_img(cosmetic: Cosmetic, new_cosmetic_name, new_cosmetic=True, new_base_color=[], constant_colors = {}):
+    color_data = cosmetic.color_data
+    if new_base_color:
+        color_data["is_color_shifted"] = True
+        color_data["new_base_color"] = new_base_color
+    if constant_colors:
+        color_data["constant_colors"] = constant_colors
+    cosmetic_signed_url = generate_signed_url(cosmetic.img.name)
+
+    response = requests.get(cosmetic_signed_url)
+    if response.status_code == 200:
+        with NamedTemporaryFile() as temp_image_file:
+            temp_image_file.write(response.content)
+            temp_image_file.flush()
+
+            # Open the downloaded image using PIL
+            with Image.open(temp_image_file.name) as pil_image:
+                # Apply your recoloring function
+                img = pil_image.convert("RGBA")
+                # If the color is re-defined as color shifted in
+                # the color metadata, apply the re-coloring function.
+                if color_data["is_color_shifted"]:
+                    img = (recolor_img(img, new_base_color=color_data["new_base_color"], 
+                                            constant_colors=color_data["constant_colors"], 
+                                            independent_colors=color_data["independent_colors"]))
+                
+            # Save the modified image to a BytesIO object
+            img_byte_arr = BytesIO()
+            img.save(img_byte_arr, format='PNG')  # Use the appropriate format
+            img_byte_arr = img_byte_arr.getvalue()
+
+            # If you want to create a new Cosmetic entry into the database,
+            # copy the info of this new image and create an entirely new entry
+            if new_cosmetic:
+                new_cosmetic = Cosmetic()  # Create a new instance
+                for field in cosmetic._meta.fields:
+                    if field.name != 'id' and field.name != 'img' and field.name != 'name':  # Exclude the id and img field
+                        setattr(new_cosmetic, field.name, getattr(cosmetic, field.name))
+                    setattr(new_cosmetic, "name", new_cosmetic_name)
+                new_cosmetic.img.save(f"{new_cosmetic_name}.png", ContentFile(img_byte_arr), save=True)
+                new_cosmetic.save()
+            # Otherwise, just change the image that the data point is referencing
+            else:
+                cosmetic.img.save(f"{new_cosmetic_name}.png", ContentFile(img_byte_arr), save=True)

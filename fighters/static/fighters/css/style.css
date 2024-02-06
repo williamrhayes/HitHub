@@ -1,0 +1,18 @@
+/* CSS styles to overlay cosmetic images */
+.fighter-container {
+    margin-bottom: 20px; /* Add spacing between fighters */
+  }
+  
+  .fighter-square {
+    position: relative; /* Container for cosmetics with relative positioning */
+    width: 112px; /* Adjust the square size as needed */
+    height: 112px;
+    border: 1px solid #000; /* Add a border for clarity */
+  }
+  
+  .cosmetic-image {
+    position: absolute; /* Position cosmetics absolutely within the square */
+    top: 0;
+    left: 0;
+  }
+  
