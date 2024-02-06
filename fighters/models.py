@@ -113,7 +113,7 @@ class Cosmetic(models.Model):
     # Establish Biographical Features
     cosmetic_choices = {
         "BASE": "Base",
-        "HAIR": "Hat",
+        "HAT": "Hat",
         "HAIR": "Hair",
         "EYE": "Eyes",
         "EAR": "Ears",

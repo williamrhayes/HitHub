@@ -5,7 +5,11 @@ import random
 import numpy as np
 from PIL import Image
 from collections import defaultdict
-from django.db.models import ImageField
+import requests
+from hithub.utils import generate_signed_url
+from django.core.files.temp import NamedTemporaryFile
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 ### Function that generates a mini martial artist Fighter
 def create_fighter(user_instance: CustomUser=None, rarity=None, **kwargs):
@@ -300,10 +304,13 @@ def recolor_img(img: Image, new_base_color: list, constant_colors: dict={}, inde
         )
         # Ignore it if the pixel is a constant color
         if constant_colors:
-            for constant_color in constant_colors.values():
-                r_const, g_const, b_const, *_ = constant_color
-                if (r_current == r_const) and (g_current == g_const) and (b_current == b_const):
-                    newData.append((r_current,g_current,b_current,a))
+            constant_color_arr = np.array(list(constant_colors.values()))
+            r_const, g_const, b_const = constant_color_arr[:, 0], constant_color_arr[:, 1], constant_color_arr[:, 2]
+            if (r_current in r_const) and (g_current in g_const) and (b_current in b_const):
+                newData.append((r_current,g_current,b_current,a))
+            else:
+                # Otherwise replace it with the new pixel color
+                newData.append((new_r, new_g, new_b, a))
         else:
             newData.append((new_r, new_g, new_b, a))
 
@@ -311,3 +318,48 @@ def recolor_img(img: Image, new_base_color: list, constant_colors: dict={}, inde
     recolored_img.putdata(newData)
 
     return recolored_img
+
+def alter_cosmetic_img(cosmetic: Cosmetic, new_cosmetic_name, new_cosmetic=True, new_base_color=[], constant_colors = {}):
+    color_data = cosmetic.color_data
+    if new_base_color:
+        color_data["is_color_shifted"] = True
+        color_data["new_base_color"] = new_base_color
+    if constant_colors:
+        color_data["constant_colors"] = constant_colors
+    cosmetic_signed_url = generate_signed_url(cosmetic.img.name)
+
+    response = requests.get(cosmetic_signed_url)
+    if response.status_code == 200:
+        with NamedTemporaryFile() as temp_image_file:
+            temp_image_file.write(response.content)
+            temp_image_file.flush()
+
+            # Open the downloaded image using PIL
+            with Image.open(temp_image_file.name) as pil_image:
+                # Apply your recoloring function
+                img = pil_image.convert("RGBA")
+                # If the color is re-defined as color shifted in
+                # the color metadata, apply the re-coloring function.
+                if color_data["is_color_shifted"]:
+                    img = (recolor_img(img, new_base_color=color_data["new_base_color"], 
+                                            constant_colors=color_data["constant_colors"], 
+                                            independent_colors=color_data["independent_colors"]))
+                
+            # Save the modified image to a BytesIO object
+            img_byte_arr = BytesIO()
+            img.save(img_byte_arr, format='PNG')  # Use the appropriate format
+            img_byte_arr = img_byte_arr.getvalue()
+
+            # If you want to create a new Cosmetic entry into the database,
+            # copy the info of this new image and create an entirely new entry
+            if new_cosmetic:
+                new_cosmetic = Cosmetic()  # Create a new instance
+                for field in cosmetic._meta.fields:
+                    if field.name != 'id' and field.name != 'img' and field.name != 'name':  # Exclude the id and img field
+                        setattr(new_cosmetic, field.name, getattr(cosmetic, field.name))
+                    setattr(new_cosmetic, "name", new_cosmetic_name)
+                new_cosmetic.img.save(f"{new_cosmetic_name}.png", ContentFile(img_byte_arr), save=True)
+                new_cosmetic.save()
+            # Otherwise, just change the image that the data point is referencing
+            else:
+                cosmetic.img.save(f"{new_cosmetic_name}.png", ContentFile(img_byte_arr), save=True)
