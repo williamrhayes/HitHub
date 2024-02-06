@@ -97,7 +97,6 @@ class Fighter(models.Model):
 
     # Add in the fighter stats from the fighters' encounters
     priors = models.JSONField(default=dict, null=False)
-    #stats = models.JSONField(default=dict, null=False)
 
     def __str__(self):
         prefix, suffix = "", ""
@@ -114,7 +113,7 @@ class Cosmetic(models.Model):
     # Establish Biographical Features
     cosmetic_choices = {
         "BASE": "Base",
-        "HAIR": "Hat",
+        "HAT": "Hat",
         "HAIR": "Hair",
         "EYE": "Eyes",
         "EAR": "Ears",
@@ -143,20 +142,33 @@ class Cosmetic(models.Model):
 
     # Primary colors of the object in question. This can be found programatically and will
     # follow the format of R_G_B_A
-    primary_color = models.CharField(blank=True, max_length=16, null=True)
-    secondary_color = models.CharField(blank=True, max_length=16, null=True)
-    tertiary_color = models.CharField(blank=True, max_length=16, null=True)
-
-    # Color shift of cosmetic (could be useful for painting later on)
-    color_shift_r = models.IntegerField(default=0,  null=False, validators=[MinValueValidator(0),MaxValueValidator(255)])
-    color_shift_g = models.IntegerField(default=0,  null=False, validators=[MinValueValidator(0),MaxValueValidator(255)])
-    color_shift_b = models.IntegerField(default=0,  null=False, validators=[MinValueValidator(0),MaxValueValidator(255)])
-
-    # Load in the image of the cosmetic
-    img = models.ImageField(null=False)
+    color_data_default = {
+        "auto_find_colors": True, 
+        "color_correct": True, 
+        # Colors you're intending to use for the asset
+        "true_colors": {
+            #"color_1": [0, 0, 0, 1],
+        },
+        # Colors that remain the same regardless of whether the asset is color shifted
+        "constant_colors": {
+            #"white": [255, 255, 255, 1], # Default to None, but colors can be added in this form
+            #"black": [0, 0, 0, 1],
+        },
+        # Colors that can experience an independent color shift
+        "independent_colors": {
+            #"detail_1": [0, 0, 0, 1] # Default to None, but colors can be added in this form
+        },
+        # Whether the color has been shifted (and if so to what new base color)
+        "is_color_shifted": False,
+        "new_base_color": [0, 0, 0, 1],
+    }
+    color_data = models.JSONField(default=color_data_default, null=False)
 
     # Load in the metadata of the cosmetic
     metadata = models.JSONField(null=True, blank=True)
+
+    # Load in the image of the cosmetic
+    img = models.ImageField(null=False)
 
     def __str__(self):
         return self.name
